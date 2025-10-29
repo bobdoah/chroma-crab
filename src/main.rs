@@ -45,7 +45,6 @@ async fn main(_spawner: Spawner) {
     let program = PioWs2812Program::new(&mut common);
     let mut ws2812: PioWs2812<'_, _, 0, 50, Rgb> =
         PioWs2812::with_color_order(&mut common, sm0, p.DMA_CH0, p.PIN_15, &program);
-    //let mut ws2812 = PioWs2812::with_color_order(&mut common, sm0, p.DMA_CH0, p.PIN_15, &program);
 
     // Loop forever making RGB values and pushing them out to the WS2812.
     let mut ticker = Ticker::every(Duration::from_millis(10));
