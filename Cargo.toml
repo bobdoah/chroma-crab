@@ -23,11 +23,11 @@ embedded-storage = "0.3.1"
 
 cortex-m-rt = "0.7.3"
 
-embassy-executor = { git = "https://github.com/bobdoah/embassy", features = ["arch-cortex-m", "executor-thread", "defmt", "executor-interrupt"] }
-embassy-sync = { git = "https://github.com/bobdoah/embassy" }
-embassy-time = { git = "https://github.com/bobdoah/embassy", features = ["defmt", "defmt-timestamp-uptime"] }
+embassy-executor = { git = "https://github.com/embassy-rs/embassy", features = ["arch-cortex-m", "executor-thread", "defmt", "executor-interrupt"] }
+embassy-sync = { git = "https://github.com/embassy-rs/embassy" }
+embassy-time = { git = "https://github.com/embassy-rs/embassy", features = ["defmt", "defmt-timestamp-uptime"] }
 cortex-m = { version = "0.7.7" }
-embassy-rp = { git = "https://github.com/bobdoah/embassy", features = ["defmt", "unstable-pac", "time-driver", "critical-section-impl", "rp235xa", "binary-info"] }
+embassy-rp = { git = "https://github.com/embassy-rs/embassy", features = ["defmt", "unstable-pac", "time-driver", "critical-section-impl", "rp235xa", "binary-info"] }
 smart-leds = "0.4.0"
 [profile.release]
 debug = 2

@@ -359,7 +359,7 @@ checksum = "48c757948c5ede0e46177b7add2e67155f70e33c07fea8284df6576da70b3719"
 [[package]]
 name = "embassy-embedded-hal"
 version = "0.5.0"
-source = "git+https://github.com/bobdoah/embassy#cc5418323c912810e9f4ede19e357a30411efd9c"
+source = "git+https://github.com/embassy-rs/embassy#11302ba0db44edcb20680376f847ae14e997ea33"
 dependencies = [
  "embassy-futures",
  "embassy-hal-internal",
@@ -375,7 +375,7 @@ dependencies = [
 [[package]]
 name = "embassy-executor"
 version = "0.9.1"
-source = "git+https://github.com/bobdoah/embassy#cc5418323c912810e9f4ede19e357a30411efd9c"
+source = "git+https://github.com/embassy-rs/embassy#11302ba0db44edcb20680376f847ae14e997ea33"
 dependencies = [
  "cordyceps",
  "cortex-m",
@@ -389,7 +389,7 @@ dependencies = [
 [[package]]
 name = "embassy-executor-macros"
 version = "0.7.0"
-source = "git+https://github.com/bobdoah/embassy#cc5418323c912810e9f4ede19e357a30411efd9c"
+source = "git+https://github.com/embassy-rs/embassy#11302ba0db44edcb20680376f847ae14e997ea33"
 dependencies = [
  "darling",
  "proc-macro2",
@@ -400,17 +400,17 @@ dependencies = [
 [[package]]
 name = "embassy-executor-timer-queue"
 version = "0.1.0"
-source = "git+https://github.com/bobdoah/embassy#cc5418323c912810e9f4ede19e357a30411efd9c"
+source = "git+https://github.com/embassy-rs/embassy#11302ba0db44edcb20680376f847ae14e997ea33"
 
 [[package]]
 name = "embassy-futures"
 version = "0.1.2"
-source = "git+https://github.com/bobdoah/embassy#cc5418323c912810e9f4ede19e357a30411efd9c"
+source = "git+https://github.com/embassy-rs/embassy#11302ba0db44edcb20680376f847ae14e997ea33"
 
 [[package]]
 name = "embassy-hal-internal"
 version = "0.3.0"
-source = "git+https://github.com/bobdoah/embassy#cc5418323c912810e9f4ede19e357a30411efd9c"
+source = "git+https://github.com/embassy-rs/embassy#11302ba0db44edcb20680376f847ae14e997ea33"
 dependencies = [
  "cortex-m",
  "critical-section",
@@ -421,7 +421,7 @@ dependencies = [
 [[package]]
 name = "embassy-rp"
 version = "0.8.0"
-source = "git+https://github.com/bobdoah/embassy#cc5418323c912810e9f4ede19e357a30411efd9c"
+source = "git+https://github.com/embassy-rs/embassy#11302ba0db44edcb20680376f847ae14e997ea33"
 dependencies = [
  "atomic-polyfill",
  "cfg-if",
@@ -461,7 +461,7 @@ dependencies = [
 [[package]]
 name = "embassy-sync"
 version = "0.7.2"
-source = "git+https://github.com/bobdoah/embassy#cc5418323c912810e9f4ede19e357a30411efd9c"
+source = "git+https://github.com/embassy-rs/embassy#11302ba0db44edcb20680376f847ae14e997ea33"
 dependencies = [
  "cfg-if",
  "critical-section",
@@ -474,7 +474,7 @@ dependencies = [
 [[package]]
 name = "embassy-time"
 version = "0.5.0"
-source = "git+https://github.com/bobdoah/embassy#cc5418323c912810e9f4ede19e357a30411efd9c"
+source = "git+https://github.com/embassy-rs/embassy#11302ba0db44edcb20680376f847ae14e997ea33"
 dependencies = [
  "cfg-if",
  "critical-section",
@@ -490,7 +490,7 @@ dependencies = [
 [[package]]
 name = "embassy-time-driver"
 version = "0.2.1"
-source = "git+https://github.com/bobdoah/embassy#cc5418323c912810e9f4ede19e357a30411efd9c"
+source = "git+https://github.com/embassy-rs/embassy#11302ba0db44edcb20680376f847ae14e997ea33"
 dependencies = [
  "document-features",
 ]
@@ -498,7 +498,7 @@ dependencies = [
 [[package]]
 name = "embassy-time-queue-utils"
 version = "0.3.0"
-source = "git+https://github.com/bobdoah/embassy#cc5418323c912810e9f4ede19e357a30411efd9c"
+source = "git+https://github.com/embassy-rs/embassy#11302ba0db44edcb20680376f847ae14e997ea33"
 dependencies = [
  "embassy-executor-timer-queue",
  "heapless",
@@ -507,7 +507,7 @@ dependencies = [
 [[package]]
 name = "embassy-usb-driver"
 version = "0.2.0"
-source = "git+https://github.com/bobdoah/embassy#cc5418323c912810e9f4ede19e357a30411efd9c"
+source = "git+https://github.com/embassy-rs/embassy#11302ba0db44edcb20680376f847ae14e997ea33"
 dependencies = [
  "defmt 1.0.1",
  "embedded-io-async",
