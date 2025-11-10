@@ -8,6 +8,7 @@ use embassy_rp::peripherals::PIO0;
 use embassy_rp::pio::{InterruptHandler, Pio};
 use embassy_rp::pio_programs::ws2812::{PioWs2812, PioWs2812Program, Rgb};
 use embassy_time::{Duration, Ticker};
+use patterns::rainbow;
 use smart_leds::RGB8;
 use {defmt_rtt as _, panic_probe as _};
 
@@ -15,20 +16,7 @@ bind_interrupts!(struct Irqs {
     PIO0_IRQ_0 => InterruptHandler<PIO0>;
 });
 
-/// Input a value 0 to 255 to get a color value
-/// The colours are a transition r - g - b - back to r.
-fn wheel(mut wheel_pos: u8) -> RGB8 {
-    wheel_pos = 255 - wheel_pos;
-    if wheel_pos < 85 {
-        return (255 - wheel_pos * 3, 0, wheel_pos * 3).into();
-    }
-    if wheel_pos < 170 {
-        wheel_pos -= 85;
-        return (0, wheel_pos * 3, 255 - wheel_pos * 3).into();
-    }
-    wheel_pos -= 170;
-    (wheel_pos * 3, 255 - wheel_pos * 3, 0).into()
-}
+mod patterns;
 
 #[embassy_executor::main]
 async fn main(_spawner: Spawner) {
@@ -48,16 +36,10 @@ async fn main(_spawner: Spawner) {
 
     // Loop forever making RGB values and pushing them out to the WS2812.
     let mut ticker = Ticker::every(Duration::from_millis(10));
+    let mut counter: u16 = 0;
     loop {
-        for j in 0..(256 * 5) {
-            debug!("New Colors:");
-            for i in 0..NUM_LEDS {
-                data[i] = wheel((((i * 256) as u16 / NUM_LEDS as u16 + j as u16) & 255) as u8);
-                debug!("R: {} G: {} B: {}", data[i].r, data[i].g, data[i].b);
-            }
-            ws2812.write(&data).await;
-
-            ticker.next().await;
-        }
+        rainbow::generate(&mut data, &mut counter);
+        ws2812.write(&data).await;
+        ticker.next().await;
     }
 }
