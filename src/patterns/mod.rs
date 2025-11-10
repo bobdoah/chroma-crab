@@ -14,3 +14,4 @@ pub fn wheel(mut wheel_pos: u8) -> RGB8 {
 }
 
 pub mod rainbow;
+pub mod twinkle;

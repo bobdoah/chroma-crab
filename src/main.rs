@@ -4,16 +4,19 @@
 use defmt::*;
 use embassy_executor::Spawner;
 use embassy_rp::bind_interrupts;
-use embassy_rp::peripherals::PIO0;
+use embassy_rp::peripherals::{PIO0, TRNG};
 use embassy_rp::pio::{InterruptHandler, Pio};
 use embassy_rp::pio_programs::ws2812::{PioWs2812, PioWs2812Program, Rgb};
 use embassy_time::{Duration, Ticker};
-use patterns::rainbow;
+//use patterns::rainbow;
+use patterns::twinkle;
+use patterns::twinkle::TwinkleState;
 use smart_leds::RGB8;
 use {defmt_rtt as _, panic_probe as _};
 
 bind_interrupts!(struct Irqs {
     PIO0_IRQ_0 => InterruptHandler<PIO0>;
+    TRNG_IRQ => embassy_rp::trng::InterruptHandler<TRNG>;
 });
 
 mod patterns;
@@ -34,11 +37,19 @@ async fn main(_spawner: Spawner) {
     let mut ws2812: PioWs2812<'_, _, 0, 50, Rgb> =
         PioWs2812::with_color_order(&mut common, sm0, p.DMA_CH0, p.PIN_15, &program);
 
-    // Loop forever making RGB values and pushing them out to the WS2812.
-    let mut ticker = Ticker::every(Duration::from_millis(10));
-    let mut counter: u16 = 0;
+    let mut randomness = [0u8; 2 * NUM_LEDS];
+    let trng = embassy_rp::trng::Trng::new(p.TRNG, Irqs, Default::default());
+    let mut twinkle_state = TwinkleState {
+        trng,
+        randomness: &mut randomness,
+        rand_index: 0,
+    };
+
+    let mut ticker = Ticker::every(Duration::from_millis(100));
+    //   let mut counter: u16 = 0;
     loop {
-        rainbow::generate(&mut data, &mut counter);
+        twinkle::generate(&mut data, &mut twinkle_state).await;
+        //        rainbow::generate(&mut data, &mut counter);
         ws2812.write(&data).await;
         ticker.next().await;
     }
