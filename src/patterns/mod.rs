@@ -13,5 +13,10 @@ pub fn wheel(mut wheel_pos: u8) -> RGB8 {
     (wheel_pos * 3, 255 - wheel_pos * 3, 0).into()
 }
 
+pub enum Pattern {
+    Rainbow,
+    Twinkle,
+}
+
 pub mod rainbow;
 pub mod twinkle;

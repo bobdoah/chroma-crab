@@ -1,10 +1,12 @@
 use super::wheel;
 use embassy_rp::peripherals::TRNG;
 use embassy_rp::trng::Trng;
+use embassy_time::Duration;
 use smart_leds::RGB8;
 
 const TWINKLE_THRESHOLD: u8 = 4;
 const FADE_AMOUNT: u8 = 8;
+pub const DURATION: Duration = Duration::from_millis(25);
 
 pub struct TwinkleState<'a> {
     pub trng: Trng<'a, TRNG>,

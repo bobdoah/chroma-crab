@@ -1,17 +1,22 @@
 #![no_std]
 #![no_main]
 
+use crate::button::button_task;
 use defmt::*;
 use embassy_executor::Spawner;
 use embassy_rp::bind_interrupts;
+use embassy_rp::gpio::{Input, Pull};
 use embassy_rp::peripherals::{PIO0, TRNG};
 use embassy_rp::pio::{InterruptHandler, Pio};
 use embassy_rp::pio_programs::ws2812::{PioWs2812, PioWs2812Program, Rgb};
-use embassy_time::{Duration, Ticker};
-//use patterns::rainbow;
-use patterns::twinkle;
-use patterns::twinkle::TwinkleState;
+use embassy_sync::{
+    blocking_mutex::raw::CriticalSectionRawMutex,
+    channel::{Channel, Receiver, Sender},
+};
+use embassy_time::Ticker;
+use patterns::{rainbow, twinkle, twinkle::TwinkleState, Pattern};
 use smart_leds::RGB8;
+
 use {defmt_rtt as _, panic_probe as _};
 
 bind_interrupts!(struct Irqs {
@@ -19,10 +24,13 @@ bind_interrupts!(struct Irqs {
     TRNG_IRQ => embassy_rp::trng::InterruptHandler<TRNG>;
 });
 
+mod button;
 mod patterns;
 
+static CHANNEL: Channel<CriticalSectionRawMutex, (), 1> = Channel::new();
+
 #[embassy_executor::main]
-async fn main(_spawner: Spawner) {
+async fn main(spawner: Spawner) {
     info!("Start");
     let p = embassy_rp::init(Default::default());
 
@@ -44,13 +52,43 @@ async fn main(_spawner: Spawner) {
         randomness: &mut randomness,
         rand_index: 0,
     };
+    let mut rainbow_counter: u16 = 0;
 
-    let mut ticker = Ticker::every(Duration::from_millis(100));
-    //   let mut counter: u16 = 0;
+    let mut current_pattern = Pattern::Rainbow;
+    let mut current_duration = rainbow::DURATION;
+
+    let sender: Sender<'static, CriticalSectionRawMutex, (), 1> = CHANNEL.sender();
+    let btn_a = Input::new(p.PIN_12, Pull::Up);
+
+    #[allow(clippy::unwrap_used)]
+    spawner.spawn(button_task(sender, btn_a).unwrap());
+
+    let receiver: Receiver<'static, CriticalSectionRawMutex, (), 1> = CHANNEL.receiver();
+
     loop {
-        twinkle::generate(&mut data, &mut twinkle_state).await;
-        //        rainbow::generate(&mut data, &mut counter);
-        ws2812.write(&data).await;
-        ticker.next().await;
+        let mut ticker = Ticker::every(current_duration);
+        loop {
+            if receiver.try_receive().is_ok() {
+                current_pattern = match current_pattern {
+                    Pattern::Rainbow => Pattern::Twinkle,
+                    Pattern::Twinkle => Pattern::Rainbow,
+                };
+                current_duration = match current_pattern {
+                    Pattern::Rainbow => rainbow::DURATION,
+                    Pattern::Twinkle => twinkle::DURATION,
+                };
+                break;
+            };
+            match current_pattern {
+                Pattern::Rainbow => {
+                    rainbow::generate(&mut data, &mut rainbow_counter);
+                }
+                Pattern::Twinkle => {
+                    twinkle::generate(&mut data, &mut twinkle_state).await;
+                }
+            }
+            ws2812.write(&data).await;
+            ticker.next().await;
+        }
     }
 }

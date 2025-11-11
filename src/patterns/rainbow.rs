@@ -1,5 +1,8 @@
 use super::wheel;
+use embassy_time::Duration;
 use smart_leds::RGB8;
+
+pub const DURATION: Duration = Duration::from_millis(10);
 
 pub fn generate(data: &mut [RGB8], counter: &mut u16) {
     // Advance the animation counter
