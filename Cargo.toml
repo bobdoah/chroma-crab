@@ -11,8 +11,6 @@ test = false
 bench = false
 
 [dependencies]
-defmt = "0.3"
-defmt-rtt = "0.4"
 panic-probe = { version = "0.3", features = ["print-defmt"] }
 
 embedded-hal = "1.0.0"
@@ -23,12 +21,17 @@ embedded-storage = "0.3.1"
 
 cortex-m-rt = "0.7.3"
 
-embassy-executor = { git = "https://github.com/embassy-rs/embassy", features = ["arch-cortex-m", "executor-thread", "defmt", "executor-interrupt"] }
-embassy-sync = { git = "https://github.com/embassy-rs/embassy" }
-embassy-time = { git = "https://github.com/embassy-rs/embassy", features = ["defmt", "defmt-timestamp-uptime"] }
+embassy-executor = { git = "https://github.com/embassy-rs/embassy", features = ["arch-cortex-m", "executor-thread", "defmt", "executor-interrupt"], rev = "aad02db" }
+embassy-sync = { git = "https://github.com/embassy-rs/embassy", rev = "aad02db" }
+embassy-time = { git = "https://github.com/embassy-rs/embassy", features = ["defmt", "defmt-timestamp-uptime"], rev = "aad02db" }
 cortex-m = { version = "0.7.7" }
-embassy-rp = { git = "https://github.com/embassy-rs/embassy", features = ["defmt", "unstable-pac", "time-driver", "critical-section-impl", "rp235xa", "binary-info"] }
+embassy-rp = { git = "https://github.com/embassy-rs/embassy", features = ["defmt", "unstable-pac", "time-driver", "critical-section-impl", "rp235xa", "binary-info"], rev = "aad02db" }
+embassy-usb = { git = "https://github.com/embassy-rs/embassy", rev = "aad02db" }
 smart-leds = "0.4.0"
+defmt = "1.0.1"
+defmt-embassy-usbserial = "0.2.1"
+
+
 [profile.release]
 debug = 2
 lto = true
@@ -38,3 +41,8 @@ opt-level = 'z'
 debug = 2
 lto = true
 opt-level = "z"
+
+[patch.crates-io]
+embassy-time = { git = "https://github.com/embassy-rs/embassy", rev = "aad02db" }
+embassy-time-driver = { git = "https://github.com/embassy-rs/embassy", rev = "aad02db" }
+embassy-usb = { git = "https://github.com/embassy-rs/embassy", rev = "aad02db" }
