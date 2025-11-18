@@ -67,8 +67,14 @@ async fn main(spawner: Spawner) {
         loop {
             if receiver.try_receive().is_ok() {
                 current_pattern = match current_pattern {
-                    Pattern::Rainbow => Pattern::Twinkle,
-                    Pattern::Twinkle => Pattern::Rainbow,
+                    Pattern::Rainbow => {
+                        info!("Switching pattern to Twinkle");
+                        Pattern::Twinkle
+                    }
+                    Pattern::Twinkle => {
+                        info!("Switching pattern to Rainbow");
+                        Pattern::Rainbow
+                    }
                 };
                 current_duration = match current_pattern {
                     Pattern::Rainbow => rainbow::DURATION,
