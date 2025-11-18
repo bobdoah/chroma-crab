@@ -1,5 +1,4 @@
 use super::wheel;
-use defmt::*;
 use embassy_rp::peripherals::TRNG;
 use embassy_rp::trng::Trng;
 use embassy_time::Duration;
@@ -10,7 +9,6 @@ const FADE_AMOUNT: u8 = 8;
 pub const DURATION: Duration = Duration::from_millis(2);
 
 pub async fn generate(data: &mut [RGB8], trng: &mut Trng<'static, TRNG>) {
-    info!("generating twinkle frame");
     let mut random_bytes = [0u8; 10];
     trng.fill_bytes(&mut random_bytes).await;
 
@@ -30,5 +28,4 @@ pub async fn generate(data: &mut [RGB8], trng: &mut Trng<'static, TRNG>) {
         let led_index = (random_bytes[i * 2] as usize) % data.len();
         data[led_index] = wheel(random_bytes[i * 2 + 1]);
     }
-    info!("generated twinkle frame");
 }
