@@ -16,7 +16,7 @@ use embassy_sync::{
     channel::{Channel, Receiver, Sender},
 };
 use embassy_time::Ticker;
-use patterns::{rainbow, twinkle, Pattern};
+use patterns::{breathe, rainbow, twinkle, Pattern};
 use smart_leds::RGB8;
 
 use panic_probe as _;
@@ -48,8 +48,11 @@ async fn main(spawner: Spawner) {
     let mut ws2812: PioWs2812<'_, _, 0, 50, Rgb> =
         PioWs2812::with_color_order(&mut common, sm0, p.DMA_CH0, p.PIN_15, &program);
 
-    let mut trng = embassy_rp::trng::Trng::new(p.TRNG, Irqs, Default::default());
+    let mut trng_config = embassy_rp::trng::Config::default();
+    trng_config.sample_count = 50;
+    let mut trng = embassy_rp::trng::Trng::new(p.TRNG, Irqs, trng_config);
     let mut rainbow_counter: u16 = 0;
+    let mut fading_state = breathe::FadingState::default();
 
     let mut current_pattern = Pattern::Rainbow;
     let mut current_duration = rainbow::DURATION;
@@ -73,6 +76,10 @@ async fn main(spawner: Spawner) {
                         Pattern::Twinkle
                     }
                     Pattern::Twinkle => {
+                        info!("Switching pattern to Breathe");
+                        Pattern::Breathe
+                    }
+                    Pattern::Breathe => {
                         info!("Switching pattern to Rainbow");
                         Pattern::Rainbow
                     }
@@ -80,6 +87,7 @@ async fn main(spawner: Spawner) {
                 current_duration = match current_pattern {
                     Pattern::Rainbow => rainbow::DURATION,
                     Pattern::Twinkle => twinkle::DURATION,
+                    Pattern::Breathe => breathe::DURATION,
                 };
                 ticker = Ticker::every(current_duration)
             }
@@ -91,6 +99,9 @@ async fn main(spawner: Spawner) {
                     }
                     Pattern::Twinkle => {
                         twinkle::generate(&mut data, &mut trng).await;
+                    }
+                    Pattern::Breathe => {
+                        breathe::generate(&mut data, &mut fading_state);
                     }
                 }
                 ws2812.write(&data).await;

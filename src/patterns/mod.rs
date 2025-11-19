@@ -16,7 +16,9 @@ pub fn wheel(mut wheel_pos: u8) -> RGB8 {
 pub enum Pattern {
     Rainbow,
     Twinkle,
+    Breathe,
 }
 
+pub mod breathe;
 pub mod rainbow;
 pub mod twinkle;
