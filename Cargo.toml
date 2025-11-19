@@ -30,6 +30,7 @@ embassy-usb = { git = "https://github.com/embassy-rs/embassy", rev = "aad02db" }
 smart-leds = "0.4.0"
 defmt = "1.0.1"
 defmt-embassy-usbserial = "0.2.1"
+embassy-futures = "0.1.2"
 
 
 [profile.release]

@@ -4,6 +4,7 @@
 use crate::button::button_task;
 use defmt::*;
 use embassy_executor::Spawner;
+use embassy_futures::select::{select, Either};
 use embassy_rp::bind_interrupts;
 use embassy_rp::gpio::{Input, Pull};
 use embassy_rp::peripherals::{PIO0, TRNG, USB};
@@ -61,11 +62,11 @@ async fn main(spawner: Spawner) {
     spawner.spawn(defmtusb_wrapper(p.USB).unwrap());
 
     let receiver: Receiver<'static, CriticalSectionRawMutex, (), 1> = CHANNEL.receiver();
+    let mut ticker = Ticker::every(current_duration);
 
     loop {
-        let mut ticker = Ticker::every(current_duration);
-        loop {
-            if receiver.try_receive().is_ok() {
+        match select(receiver.receive(), ticker.next()).await {
+            Either::First(_) => {
                 current_pattern = match current_pattern {
                     Pattern::Rainbow => {
                         info!("Switching pattern to Twinkle");
@@ -80,18 +81,20 @@ async fn main(spawner: Spawner) {
                     Pattern::Rainbow => rainbow::DURATION,
                     Pattern::Twinkle => twinkle::DURATION,
                 };
-                break;
-            };
-            match current_pattern {
-                Pattern::Rainbow => {
-                    rainbow::generate(&mut data, &mut rainbow_counter);
-                }
-                Pattern::Twinkle => {
-                    twinkle::generate(&mut data, &mut trng).await;
-                }
+                ticker = Ticker::every(current_duration)
             }
-            ws2812.write(&data).await;
-            ticker.next().await;
+
+            Either::Second(_) => {
+                match current_pattern {
+                    Pattern::Rainbow => {
+                        rainbow::generate(&mut data, &mut rainbow_counter);
+                    }
+                    Pattern::Twinkle => {
+                        twinkle::generate(&mut data, &mut trng).await;
+                    }
+                }
+                ws2812.write(&data).await;
+            }
         }
     }
 }

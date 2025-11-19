@@ -6,7 +6,7 @@ use smart_leds::RGB8;
 
 const FADE_AMOUNT: u8 = 8;
 
-pub const DURATION: Duration = Duration::from_millis(2);
+pub const DURATION: Duration = Duration::from_millis(60);
 
 pub async fn generate(data: &mut [RGB8], trng: &mut Trng<'static, TRNG>) {
     let mut random_bytes = [0u8; 10];
