@@ -1,24 +1,56 @@
-use super::wheel;
 use embassy_time::Duration;
-use smart_leds::{colors::BLACK, RGB8};
+use smart_leds::{brightness, colors::*, gamma, RGB8};
 
-const FADE_AMOUNT: u8 = 8;
+const FADE_AMOUNT: u8 = 1;
+pub const DURATION: Duration = Duration::from_millis(8);
 
-pub const DURATION: Duration = Duration::from_millis(10);
+const COLOR_PALETTE: &[RGB8] = &[
+    // --- Reds & Oranges ---
+    RED,
+    ORANGE_RED,
+    TOMATO,
+    DARK_ORANGE,
+    // --- Yellows ---
+    GOLD,
+    YELLOW,
+    // --- Greens ---
+    CHARTREUSE,
+    LIME,
+    GREEN,
+    // --- Teals & Cyans ---
+    TEAL,
+    DARK_TURQUOISE,
+    CYAN,
+    // --- Blues ---
+    DEEP_SKY_BLUE,
+    MEDIUM_BLUE,
+    BLUE,
+    // --- Purples ---
+    INDIGO,
+    DARK_VIOLET,
+    DARK_MAGENTA,
+    MEDIUM_VIOLET_RED,
+    // --- Pinks ---
+    FUCHSIA,
+    DEEP_PINK,
+    HOT_PINK,
+    CRIMSON,
+];
 
 pub struct FadingState {
     direction: FadingDirection,
-    target: RGB8,
-    wheel_pos: u8,
+    target_color: RGB8,
+    palette_index: usize,
+    linear_step: u8,
 }
 
 impl Default for FadingState {
     fn default() -> Self {
-        let initial_wheel_pos = 0; // Start at the first color (position 0)
         FadingState {
             direction: FadingDirection::FadingIn,
-            target: wheel(initial_wheel_pos),
-            wheel_pos: initial_wheel_pos,
+            target_color: COLOR_PALETTE[0],
+            palette_index: 0,
+            linear_step: 0,
         }
     }
 }
@@ -29,51 +61,29 @@ pub enum FadingDirection {
 }
 
 pub fn generate(data: &mut [RGB8], state: &mut FadingState) {
-    // All pixels are the same color
-    let current_color = data[0];
-    let new_color: RGB8;
-
     match state.direction {
         FadingDirection::FadingIn => {
-            new_color = RGB8 {
-                r: current_color
-                    .r
-                    .saturating_add(FADE_AMOUNT)
-                    .min(state.target.r),
-                g: current_color
-                    .g
-                    .saturating_add(FADE_AMOUNT)
-                    .min(state.target.g),
-                b: current_color
-                    .b
-                    .saturating_add(FADE_AMOUNT)
-                    .min(state.target.b),
-            };
-            if new_color == state.target {
-                *state = FadingState {
-                    direction: FadingDirection::FadingOut,
-                    target: BLACK,
-                    wheel_pos: state.wheel_pos,
-                }
+            state.linear_step = state.linear_step.saturating_add(FADE_AMOUNT);
+            if state.linear_step == 255 {
+                state.direction = FadingDirection::FadingOut;
             }
         }
         FadingDirection::FadingOut => {
-            new_color = RGB8 {
-                r: current_color.r.saturating_sub(FADE_AMOUNT),
-                g: current_color.g.saturating_sub(FADE_AMOUNT),
-                b: current_color.b.saturating_sub(FADE_AMOUNT),
-            };
-            if new_color == BLACK {
-                let wheel_pos = state.wheel_pos.wrapping_add(1);
-                *state = FadingState {
-                    direction: FadingDirection::FadingIn,
-                    target: wheel(wheel_pos),
-                    wheel_pos: wheel_pos,
-                }
+            state.linear_step = state.linear_step.saturating_sub(FADE_AMOUNT);
+            if state.linear_step == 0 {
+                state.palette_index = (state.palette_index + 1) % COLOR_PALETTE.len();
+                state.target_color = COLOR_PALETTE[state.palette_index];
+                state.direction = FadingDirection::FadingIn;
             }
         }
     }
-    for pixel in data.iter_mut() {
-        *pixel = new_color;
-    }
+
+    let new_colors = gamma(brightness(
+        core::iter::repeat(state.target_color).take(data.len()),
+        state.linear_step,
+    ));
+
+    data.iter_mut().zip(new_colors).for_each(|(pixel, color)| {
+        *pixel = color;
+    });
 }
