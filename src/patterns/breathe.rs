@@ -2,6 +2,7 @@ use embassy_time::Duration;
 use smart_leds::{brightness, colors::*, gamma, RGB8};
 
 const FADE_AMOUNT: u8 = 1;
+const FADE_MIN: u8 = 25;
 pub const DURATION: Duration = Duration::from_millis(8);
 
 const COLOR_PALETTE: &[RGB8] = &[
@@ -70,7 +71,8 @@ pub fn generate(data: &mut [RGB8], state: &mut FadingState) {
         }
         FadingDirection::FadingOut => {
             state.linear_step = state.linear_step.saturating_sub(FADE_AMOUNT);
-            if state.linear_step == 0 {
+            if state.linear_step <= FADE_MIN {
+                state.linear_step = FADE_MIN;
                 state.palette_index = (state.palette_index + 1) % COLOR_PALETTE.len();
                 state.target_color = COLOR_PALETTE[state.palette_index];
                 state.direction = FadingDirection::FadingIn;
