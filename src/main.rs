@@ -16,7 +16,7 @@ use embassy_sync::{
     channel::{Channel, Receiver, Sender},
 };
 use embassy_time::Ticker;
-use patterns::{alternating, breathe, rainbow, twinkle, Pattern};
+use patterns::{alternating, breathe, rainbow, rainbow_comet, twinkle, Pattern};
 use smart_leds::RGB8;
 
 use panic_probe as _;
@@ -54,6 +54,7 @@ async fn main(spawner: Spawner) {
     let mut rainbow_counter: u16 = 0;
     let mut fading_state = breathe::FadingState::default();
     let mut alternating_state = alternating::AlternatingState::default();
+    let mut rainbow_comet_state = rainbow_comet::CometState::default();
 
     let mut current_pattern = Pattern::Rainbow;
     let mut current_duration = rainbow::DURATION;
@@ -86,6 +87,10 @@ async fn main(spawner: Spawner) {
                     }
                     Pattern::Alternating => {
                         info!("Switching pattern to Rainbow");
+                        Pattern::RainbowComet
+                    }
+                    Pattern::RainbowComet => {
+                        info!("Switching pattern to Rainbow");
                         Pattern::Rainbow
                     }
                 };
@@ -94,6 +99,7 @@ async fn main(spawner: Spawner) {
                     Pattern::Twinkle => twinkle::DURATION,
                     Pattern::Breathe => breathe::DURATION,
                     Pattern::Alternating => alternating::DURATION,
+                    Pattern::RainbowComet => rainbow_comet::DURATION,
                 };
                 ticker = Ticker::every(current_duration)
             }
@@ -111,6 +117,9 @@ async fn main(spawner: Spawner) {
                     }
                     Pattern::Alternating => {
                         alternating::generate(&mut data, &mut alternating_state);
+                    }
+                    Pattern::RainbowComet => {
+                        rainbow_comet::generate(&mut data, &mut rainbow_comet_state);
                     }
                 }
                 ws2812.write(&data).await;

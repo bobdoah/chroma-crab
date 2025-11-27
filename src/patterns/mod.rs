@@ -18,9 +18,11 @@ pub enum Pattern {
     Twinkle,
     Breathe,
     Alternating,
+    RainbowComet,
 }
 
 pub mod alternating;
 pub mod breathe;
 pub mod rainbow;
+pub mod rainbow_comet;
 pub mod twinkle;
