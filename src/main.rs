@@ -2,6 +2,7 @@
 #![no_main]
 
 use crate::button::button_task;
+use crate::led::{led_task, RGBLed};
 use defmt::*;
 use embassy_executor::Spawner;
 use embassy_futures::select::{select, Either};
@@ -28,6 +29,7 @@ bind_interrupts!(struct Irqs {
 });
 
 mod button;
+mod led;
 mod patterns;
 
 static CHANNEL: Channel<CriticalSectionRawMutex, (), 1> = Channel::new();
@@ -61,10 +63,12 @@ async fn main(spawner: Spawner) {
 
     let sender: Sender<'static, CriticalSectionRawMutex, (), 1> = CHANNEL.sender();
     let btn_a = Input::new(p.PIN_12, Pull::Up);
+    let rgb_led = RGBLed::new(p.PWM_SLICE0, p.PWM_SLICE1, p.PIN_16, p.PIN_17, p.PIN_18);
 
     #[allow(clippy::unwrap_used)]
     spawner.spawn(button_task(sender, btn_a).unwrap());
     spawner.spawn(defmtusb_wrapper(p.USB).unwrap());
+    spawner.spawn(led_task(rgb_led).unwrap());
 
     let receiver: Receiver<'static, CriticalSectionRawMutex, (), 1> = CHANNEL.receiver();
     let mut ticker = Ticker::every(current_duration);
