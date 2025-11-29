@@ -40,10 +40,10 @@ async fn main(spawner: Spawner) {
 
     let p = embassy_rp::init(Default::default());
 
+    // Do this early, so we stand a chance of getting debug output
+    #[allow(clippy::unwrap_used)]
     spawner.spawn(defmtusb_wrapper(p.USB).unwrap());
     info!("Starting the chroma crab with {} LEDs", NUM_LEDS);
-    let rgb_led = RGBLed::new(p.PWM_SLICE0, p.PWM_SLICE1, p.PIN_16, p.PIN_17, p.PIN_18);
-    spawner.spawn(led_task(rgb_led).unwrap());
 
     let Pio {
         mut common, sm0, ..
@@ -68,9 +68,11 @@ async fn main(spawner: Spawner) {
 
     let sender: Sender<'static, CriticalSectionRawMutex, (), 1> = CHANNEL.sender();
     let btn_a = Input::new(p.PIN_12, Pull::Up);
+    let rgb_led = RGBLed::new(p.PWM_SLICE0, p.PWM_SLICE1, p.PIN_16, p.PIN_17, p.PIN_18);
 
     #[allow(clippy::unwrap_used)]
     spawner.spawn(button_task(sender, btn_a).unwrap());
+    spawner.spawn(led_task(rgb_led).unwrap());
 
     let receiver: Receiver<'static, CriticalSectionRawMutex, (), 1> = CHANNEL.receiver();
     let mut ticker = Ticker::every(current_duration);
