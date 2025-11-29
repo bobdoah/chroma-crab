@@ -1,4 +1,4 @@
-use defmt::{error, info, Debug2Format};
+use defmt::{debug, error, info, Debug2Format};
 use embassy_rp::peripherals::{PIN_16, PIN_17, PIN_18, PWM_SLICE0, PWM_SLICE1};
 use embassy_rp::pwm::{Config, Pwm, PwmError, SetDutyCycle};
 use embassy_rp::Peri;
@@ -49,9 +49,7 @@ impl<'d> RGBLed<'d> {
         let g_duty = (((255 - color.g) as u32 * self.top as u32) / 255) as u16;
         let b_duty = (((255 - color.b) as u32 * self.top as u32) / 255) as u16;
         info!("Setting color to {}", Debug2Format(&color));
-        info!("top: {}", self.top);
-        info!("r duty: {}", r_duty);
-        info!(
+        debug!(
             "r_duty: {}, g_duty: {}, b_duty: {}, top: {}",
             r_duty, g_duty, b_duty, self.top
         );
