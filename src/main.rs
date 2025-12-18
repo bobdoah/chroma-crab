@@ -63,8 +63,8 @@ async fn main(spawner: Spawner) {
     let mut alternating_state = alternating::AlternatingState::default();
     let mut rainbow_comet_state = rainbow_comet::CometState::default();
 
-    let mut current_pattern = Pattern::Rainbow;
-    let mut current_duration = rainbow::DURATION;
+    let mut current_pattern = Pattern::Twinkle;
+    let mut current_duration = twinkle::DURATION;
 
     let sender: Sender<'static, CriticalSectionRawMutex, (), 1> = CHANNEL.sender();
     let btn_a = Input::new(p.PIN_12, Pull::Up);
