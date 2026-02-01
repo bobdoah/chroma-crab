@@ -26,10 +26,9 @@ embassy-sync = { git = "https://github.com/embassy-rs/embassy", rev = "aad02db" 
 embassy-time = { git = "https://github.com/embassy-rs/embassy", features = ["defmt", "defmt-timestamp-uptime"], rev = "aad02db" }
 cortex-m = { version = "0.7.7" }
 embassy-rp = { git = "https://github.com/embassy-rs/embassy", features = ["defmt", "unstable-pac", "time-driver", "critical-section-impl", "rp235xa", "binary-info"], rev = "aad02db" }
-embassy-usb = { git = "https://github.com/embassy-rs/embassy", rev = "aad02db" }
 smart-leds = "0.4.0"
 defmt = "1.0.1"
-defmt-embassy-usbserial = "0.2.1"
+defmt-rtt = "0.4"
 embassy-futures = "0.1.2"
 
 
@@ -46,4 +45,3 @@ opt-level = "z"
 [patch.crates-io]
 embassy-time = { git = "https://github.com/embassy-rs/embassy", rev = "aad02db" }
 embassy-time-driver = { git = "https://github.com/embassy-rs/embassy", rev = "aad02db" }
-embassy-usb = { git = "https://github.com/embassy-rs/embassy", rev = "aad02db" }
