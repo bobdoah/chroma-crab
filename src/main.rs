@@ -8,10 +8,9 @@ use embassy_executor::Spawner;
 use embassy_futures::select::{select, Either};
 use embassy_rp::bind_interrupts;
 use embassy_rp::gpio::{Input, Pull};
-use embassy_rp::peripherals::{PIO0, TRNG, USB};
+use embassy_rp::peripherals::{PIO0, TRNG};
 use embassy_rp::pio::{InterruptHandler, Pio};
 use embassy_rp::pio_programs::ws2812::{PioWs2812, PioWs2812Program, Rgb};
-use embassy_rp::Peri;
 use embassy_sync::{
     blocking_mutex::raw::CriticalSectionRawMutex,
     channel::{Channel, Receiver, Sender},
@@ -20,12 +19,12 @@ use embassy_time::Ticker;
 use patterns::{alternating, breathe, rainbow, rainbow_comet, twinkle, Pattern};
 use smart_leds::RGB8;
 
+use defmt_rtt as _;
 use panic_probe as _;
 
 bind_interrupts!(struct Irqs {
     PIO0_IRQ_0 => InterruptHandler<PIO0>;
     TRNG_IRQ => embassy_rp::trng::InterruptHandler<TRNG>;
-    USBCTRL_IRQ => embassy_rp::usb::InterruptHandler<USB>;
 });
 
 mod button;
@@ -40,7 +39,6 @@ async fn main(spawner: Spawner) {
 
     let p = embassy_rp::init(Default::default());
 
-    spawner.spawn(defmtusb_wrapper(p.USB).unwrap());
     info!("Starting the chroma crab with {} LEDs", NUM_LEDS);
     let rgb_led = RGBLed::new(p.PWM_SLICE0, p.PWM_SLICE1, p.PIN_16, p.PIN_17, p.PIN_18);
     spawner.spawn(led_task(rgb_led).unwrap());
@@ -63,8 +61,8 @@ async fn main(spawner: Spawner) {
     let mut alternating_state = alternating::AlternatingState::default();
     let mut rainbow_comet_state = rainbow_comet::CometState::default();
 
-    let mut current_pattern = Pattern::Twinkle;
-    let mut current_duration = twinkle::DURATION;
+    let mut current_pattern = Pattern::Rainbow;
+    let mut current_duration = rainbow::DURATION;
 
     let sender: Sender<'static, CriticalSectionRawMutex, (), 1> = CHANNEL.sender();
     let btn_a = Input::new(p.PIN_12, Pull::Up);
@@ -132,20 +130,4 @@ async fn main(spawner: Spawner) {
             }
         }
     }
-}
-
-#[embassy_executor::task]
-async fn defmtusb_wrapper(usb: Peri<'static, USB>) {
-    let driver = embassy_rp::usb::Driver::new(usb, Irqs);
-    let config = {
-        let mut c = embassy_usb::Config::new(0x1234, 0x5678);
-        c.serial_number = Some("defmt");
-        c.max_packet_size_0 = 64;
-        c.composite_with_iads = true;
-        c.device_class = 0xEF;
-        c.device_sub_class = 0x02;
-        c.device_protocol = 0x01;
-        c
-    };
-    defmt_embassy_usbserial::run(driver, config).await;
 }
