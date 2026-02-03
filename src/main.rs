@@ -58,7 +58,7 @@ async fn main(spawner: Spawner) {
     let mut trng_config = embassy_rp::trng::Config::default();
     trng_config.sample_count = 50;
     let mut trng = embassy_rp::trng::Trng::new(p.TRNG, Irqs, trng_config);
-    let mut rainbow_counter: u16 = 0;
+    let mut rainbow_counter: u8 = 0;
     let mut fading_state = breathe::FadingState::default();
     let mut alternating_state = alternating::AlternatingState::default();
     let mut rainbow_comet_state = rainbow_comet::CometState::default();
